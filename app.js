@@ -24,20 +24,23 @@ var uiController = (function() {
 
 // ****** САНХҮҮТЭЙ АЖИЛЛАХ МОДУЛЬ КОНТРОЛЛЕР ******
 var financeController = (function() {
+  //private Функц
   var Income = function(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
+  //private Функц
   var Expence = function(id, description, value) {
     this.id = id;
     this.description = description;
     this.value = value;
   };
 
+  //private data
   var data = {
-    allItems: {
+    items: {
       inc: [],
       exp: []
     },
@@ -47,15 +50,40 @@ var financeController = (function() {
       exp: 0
     }
   };
+
+  return {
+    addItem: function(type, desc, val) {
+      var item;
+
+      // identification
+
+      if (data.items[type].length === 0) id = 1;
+      else {
+        data.items[type][data.items[type].length - 1].id + 1;
+      }
+
+      if (type === "inc") {
+        item = new Income(id, desc, val);
+      } else {
+        item = new Expence(id, desc, val);
+      }
+      data.items[type].push(item);
+    },
+    seeData: function() {
+      return data;
+    }
+  };
 })();
 
 // ****** ПРОГРАММ ХОЛБОГЧ МОДУЛЬ КОНТРОЛЛЕР ******
 var appController = (function(uiController, financeController) {
   var ctrlAddItem = function() {
     //1. Оруулах өгөгдлийг дэлгэцээс олж авна.
-    console.log(uiController.getInput());
-    //2. Олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж түүнд хадгална.
+    var input = uiController.getInput();
 
+    console.log(input);
+    //2. Олж авсан өгөгдлүүдээ санхүүгийн контроллерт дамжуулж түүнд хадгална.
+    financeController.addItem(input.type, input.description, input.value);
     //3. Олж авсан өгөгдлүүдийг вэв дээрээ тохирох хэсэгт нь гаргана.
 
     //4. Төсвийг тооцоолно.
