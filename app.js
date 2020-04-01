@@ -145,13 +145,13 @@ var financeController = (function() {
     },
 
     addItem: function(type, desc, val) {
-      var item;
+      var item, id;
 
       // identification
 
       if (data.items[type].length === 0) id = 1;
       else {
-        data.items[type][data.items[type].length - 1].id + 1;
+        id = data.items[type][data.items[type].length - 1].id + 1;
       }
 
       if (type === "inc") {
