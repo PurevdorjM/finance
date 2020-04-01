@@ -145,6 +145,21 @@ var financeController = (function() {
       };
     },
 
+    deleteItem: function(type, id) {
+      var ids = data.items[type].map(function(el) {
+        return el.id;
+      });
+
+      console.log("ids: " + ids);
+      var index = ids.indexOf(id);
+      console.log("index: " + index);
+
+      if (index !== -1) {
+        console.log("ustgah gej baina");
+        data.items[type].splice(index, 1);
+      }
+    },
+
     addItem: function(type, desc, val) {
       var item, id;
 
@@ -222,11 +237,15 @@ var appController = (function(uiController, financeController) {
           //inc-2
           var arr = id.split("-");
           var type = arr[0];
-          var itemId = arr[1];
+          var itemId = parseInt(arr[1]);
 
-          // console.log(type + "===>" + itemId);
+          console.log(type + "===>" + itemId);
 
-          // 1. Санхүүгийн модулаас typ
+          // 1. Санхүүгийн модулаас type, id ашиглаад устгана.
+          financeController.deleteItem(type, itemId);
+          // 2. Дэлгэц дээрээс энэ элементийг устгана.
+
+          // 3. Үлдэгдэл тооцоог шинэчилж харуулна.
         }
       });
   };
