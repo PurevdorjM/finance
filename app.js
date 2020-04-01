@@ -98,6 +98,17 @@ var financeController = (function() {
     this.id = id;
     this.description = description;
     this.value = value;
+    this.precentage = -1;
+  };
+
+  Expence.prototype.calcPrecentage = function(totalIncome) {
+    if (totalIncome > 0)
+      this.precentage = Math.round((this.value / totalIncome) * 100);
+    else this.precentage = 0;
+  };
+
+  Expence.prototype.getPresentage = function(type) {
+    return this.precentage;
   };
 
   var calculateTotal = function(type) {
@@ -138,7 +149,23 @@ var financeController = (function() {
       data.tusuv = data.totals.inc - data.totals.exp;
 
       //Орлого зарлагын хувийг тооцоолно.
-      data.huvi = Math.round((data.totals.exp / data.totals.inc) * 100);
+      if (data.totals.inc > 0) {
+        data.huvi = Math.round((data.totals.exp / data.totals.inc) * 100);
+      } else data.huvi = 0;
+    },
+
+    calculatePrecentages: function() {
+      data.items.exp.forEach(function(el) {
+        el.calcPrecentage(data.totals.inc);
+      });
+    },
+
+    getPresentages: function() {
+      var allPresentages = data.items.exp.map(function(el) {
+        return el.getPresentage();
+      });
+
+      return allPresentages;
     },
 
     tusviigAvah: function() {
@@ -200,12 +227,17 @@ var appController = (function(uiController, financeController) {
         input.description,
         input.value
       );
+
+      //3. Олж авсан өгөгдлүүдийг вэв дээрээ тохирох хэсэгт нь гаргана.
+      uiController.addListItem(item, input.type);
+      uiController.clearFields();
+
+      // Төсвийг шинээр тооцоолон дэлгэцэнд үзүүлэх
+      updateTusuv();
     }
+  };
 
-    //3. Олж авсан өгөгдлүүдийг вэв дээрээ тохирох хэсэгт нь гаргана.
-    uiController.addListItem(item, input.type);
-    uiController.clearFields();
-
+  var updateTusuv = function() {
     //4. Төсвийг тооцоолно.
     financeController.tusuvTootsooloh();
 
@@ -214,6 +246,15 @@ var appController = (function(uiController, financeController) {
 
     //6. Төсвийн тооцоог дэлгэцэнд гаргана.
     uiController.tusviigUzuuleh(tusuv);
+
+    //7. Элементүүдийн хувийг тооцоолно.
+    financeController.calculatePrecentages();
+
+    //8. Элементүүдийн хувийг хүлээж авна.
+    var allPresentages = financeController.getPresentages();
+
+    //9. Элементүүдийг дэлгэцэнд гаргана.
+    console.log(allPresentages);
   };
 
   // EventListener-үүдийн буюу хулганы гарны лижтенерүүдийн холбогч функц
@@ -241,7 +282,7 @@ var appController = (function(uiController, financeController) {
           var type = arr[0];
           var itemId = parseInt(arr[1]);
 
-          console.log(type + "===>" + itemId);
+          // console.log(type + "===>" + itemId);
 
           // 1. Санхүүгийн модулаас type, id ашиглаад устгана.
           financeController.deleteItem(type, itemId);
@@ -250,6 +291,7 @@ var appController = (function(uiController, financeController) {
           uiController.deleteListItem(id);
 
           // 3. Үлдэгдэл тооцоог шинэчилж харуулна.
+          updateTusuv();
         }
       });
   };
